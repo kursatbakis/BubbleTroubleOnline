@@ -1,0 +1,55 @@
+TCP :
+
+Client side:
+
+	connect:
+	{
+		"ip": "0.0.0.0",
+		"name": "kursat",
+		"type": "connect"
+	}
+
+	search for match:
+	{
+		"id": 561,
+		"type": "enqueue",
+	}
+
+	goodbye:
+	{
+		"id": 561,
+		"type": "goodbye"
+	}
+
+Server side:
+
+	success:
+	{
+		"id": 561,
+		"type": "success"
+	}
+
+	number of players waiting:
+	match found:
+	{
+		"withId": 394,
+		"name": "hamza",
+		"type": "match",
+		"port": 9999
+	}
+
+	forceEnd:
+	{
+		"withId": 394,
+		"type": "forceEnd",
+		"result": "win"
+	}
+
+
+UDP (game mechanics):
+
+	client side sends coordinates:
+	{
+
+	}
+
