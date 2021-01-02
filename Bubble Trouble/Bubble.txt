@@ -29,7 +29,6 @@ Server side:
 		"type": "success"
 	}
 
-	number of players waiting:
 	match found:
 	{
 		"withId": 394,
@@ -41,6 +40,7 @@ Server side:
 	forceEnd:
 	{
 		"withId": 394,
+		"name": "hamza",
 		"type": "forceEnd",
 		"result": "win"
 	}
@@ -48,8 +48,78 @@ Server side:
 
 UDP (game mechanics):
 
-	client side sends coordinates:
+	(client)
+ 	coordinates:
 	{
-
+		"type": "update",
+		"gameId": 65442,
+		"player": player's id,
+		"x": double,
+		"dir": "l, r veya n",
+	}
+	
+	level (server):
+	{
+		"bg": "xxx.jpg",
+		"time": 100,
+		"level": 4,
+		"r_lives": 5,
+		"balls": [
+			{"x": x, "y": y, "velx": velX, "velY": velY, "size": size, "clr": 0-5},
+			{}
+		],
+		"noOfBalls": 10,
+		"initialX": 43.41,
+		"r_initialX": 69.31,
+		"wait": 2,
+		"minX": 30,
+		"maxX": 100 
+	}
+	
+	dead: (client)
+	{
+		"type": "dead",
+		"id": id,
+		"gameId": 65442
+	}
+	
+	dead: (server)
+	{
+		"type": "dead",
+		"livesEnded": true|false, 
 	}
 
+	rival coordinates (server):
+	{
+		"type": "s_update",
+		"x": double,
+		"dir": l,r or n,
+		
+	}
+
+	shoot: (client)
+	{
+		"type": "shoot",
+		"gameId": 65442,
+		"id": id,
+		"x": location,
+	}
+	
+	
+	shoot: (server)
+	{
+		"type": "s_shoot",
+		"x": location,
+	}
+	
+	balls: (server)
+	{
+		"type": "balls",
+		"balls": [
+			{"x": x, "y": y, "velx": velX, "velY": velY, "size": size, "clr": 0-5},
+			{}
+		],
+		"noOfBalls": 5,
+	}
+	
+	

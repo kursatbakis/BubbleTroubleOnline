@@ -40,9 +40,9 @@ def acceptConnections():
 		with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 			s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 			s.bind(('', defaultPort))
+			print("asd")
 			s.listen()
 			conn, addr = s.accept()
-			print("asd")
 			numberOfConnections += 1
 			Thread(target = listenToClient, args = (conn,), daemon = True).start()
 
