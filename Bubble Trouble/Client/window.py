@@ -9,8 +9,6 @@ surface = pygame.display.set_mode((800, 600))
 def start_the_game():
     global surface
     surface.fill((255,27,79))
-    
-
 
 
 menu = pygame_menu.Menu(height=600,

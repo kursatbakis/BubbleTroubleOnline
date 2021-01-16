@@ -3,6 +3,7 @@ import queue
 import subprocess
 import socket
 import time
+import packets
 from threading import Thread
 
 numberOfConnections = 0
@@ -20,19 +21,6 @@ class Player:
 
 def getAvailablePort():
 	return 43434
-
-def successPacket():
-	packet = {"success": True, "id": uniqueIdCounter}
-	uniqueIdCounter += 1
-	return bytes(json.dumps(packet), "utf8")
-
-def matchFoundPacket(withId, name):
-	packet = {"withId": withId, "name": name, "type": "match", "port": getAvailablePort()}
-	return bytes(json.dumps(packet), "utf8")
-
-def forceEndPacket(withId):
-	packet = {"withId": withId, "result": "win", "type": "forceEnd"}
-	return bytes(json.dumps(packet), "utf8")
 
 def acceptConnections():
 	global numberOfConnections

@@ -1,4 +1,4 @@
-TCP :
+ TCP :
 
 Client side:
 
@@ -89,12 +89,11 @@ UDP (game mechanics):
 		"livesEnded": true|false, 
 	}
 
-	rival coordinates (server):
+	UPDATE rival coordinates (server):
 	{
 		"type": "s_update",
 		"x": double,
 		"dir": l,r or n,
-		
 	}
 
 	shoot: (client)
