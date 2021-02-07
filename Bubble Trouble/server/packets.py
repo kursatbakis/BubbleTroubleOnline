@@ -1,23 +1,24 @@
-import ServerSide
 import json
 
-
-def success():
-	packet = {"success": True, "id": ServerSide.uniqueIdCounter}
-	ServerSide.uniqueIdCounter += 1
+# send to everyone who connects to server
+def success(uniqueId):
+	packet = {"success": True, "id": uniqueId}
 	return bytes(json.dumps(packet), "utf8")
 
 
-def matchFound(withId, name):
-	packet = {"withId": withId, "name": name, "type": "match", "port": getAvailablePort()}
+# send to both players
+def matchFound(withId, name, port):
+	packet = {"withId": withId, "name": name, "type": "match", "port": port}
 	return bytes(json.dumps(packet), "utf8")
 
 
+# if a player loses connection or leaves the game, send to the peer.
 def forceEnd(withId):
-	packet = {"withId": withId, "result": "win", "type": "forceEnd"}
+	packet = {"withId": withId, "type": "forceEnd"}
 	return bytes(json.dumps(packet), "utf8")
 
 
+# send before the match starts to BOTH players.
 def levelInit(level, r_lives, balls, x, rivalx, wait, minX, maxX):
 	packet = {
 		"bg": "bg" + level + ".jpg",
@@ -35,6 +36,8 @@ def levelInit(level, r_lives, balls, x, rivalx, wait, minX, maxX):
 	}
 	return bytes(json.dumps(packet), "utf8")
 
+
+# position update every few milliseconds
 def update(x, direction):
 	packet = {
 		"type": "s_update",
@@ -43,6 +46,8 @@ def update(x, direction):
 	}
 	return bytes(json.dumps(packet), "utf8")
 
+
+# if someone shoots, send to the peer.
 def shoot(x):
 	packet = {
 		"type": "s_shoot",
@@ -50,10 +55,20 @@ def shoot(x):
 	}
 	return bytes(json.dumps(packet), "utf8")
 
-def balls(balls):
+
+# balls
+def balls(_balls):
 	packet = {
 		"type": "balls",
-		"balls": balls,
-		"noOfBalls": len(balls)
+		"balls": _balls,
+		"noOfBalls": len(_balls)
+	}
+	return bytes(json.dumps(packet), "utf8")
+
+#if someone dies, send to peer.
+def dead(livesEnded):
+	packet = {
+		"type": "dead",
+		"livesEnded": livesEnded
 	}
 	return bytes(json.dumps(packet), "utf8")

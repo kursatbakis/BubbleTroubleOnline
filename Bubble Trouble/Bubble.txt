@@ -42,14 +42,13 @@ Server side:
 		"withId": 394,
 		"name": "hamza",
 		"type": "forceEnd",
-		"result": "win"
 	}
 
 
 UDP (game mechanics):
 
 	(client)
- 	coordinates:
+ 	coordinates: +
 	{
 		"type": "update",
 		"gameId": 65442,
@@ -58,7 +57,7 @@ UDP (game mechanics):
 		"dir": "l, r veya n",
 	}
 	
-	level (server):
+	level (server): +
 	{
 		"bg": "xxx.jpg",
 		"time": 100,
@@ -76,27 +75,27 @@ UDP (game mechanics):
 		"maxX": 100 
 	}
 	
-	dead: (client)
+	dead: (client) +
 	{
 		"type": "dead",
 		"id": id,
 		"gameId": 65442
 	}
 	
-	dead: (server)
+	dead: (server) +
 	{
 		"type": "dead",
 		"livesEnded": true|false, 
 	}
 
-	UPDATE rival coordinates (server):
+	UPDATE rival coordinates (server):+
 	{
 		"type": "s_update",
 		"x": double,
 		"dir": l,r or n,
 	}
 
-	shoot: (client)
+	shoot: (client) +
 	{
 		"type": "shoot",
 		"gameId": 65442,
@@ -105,13 +104,13 @@ UDP (game mechanics):
 	}
 	
 	
-	shoot: (server)
+	shoot: (server) +
 	{
 		"type": "s_shoot",
 		"x": location,
 	}
 	
-	balls: (server)
+	balls: (server) +
 	{
 		"type": "balls",
 		"balls": [
@@ -120,5 +119,20 @@ UDP (game mechanics):
 		],
 		"noOfBalls": 5,
 	}
-	
+
+Senaryo:
+1-Server başlar: startMatchQueue threadi ve acceptConnections
+2-Birinci client açılır, servera bağlanır, adını yazar ve connect paketi gönderir.
+3-Server client'a paketi aldığını gösteren success paketi ve ID gönderir.
+4-Serverda ayrı bir thread olarak listenToClient başlar ve o kişiden gelen paketleri dinler.
+5-Client success paketini aldıktan sonra enqueue paketi gönderir Match bekleme ekranı açılır.
+6-Server, clienti bir havuza atar ve 2.kişinin gelmesini bekler. 2.kişi geldiğinde ikisine de
+    matchFound paketi ve port numarası atılır.
+7-Clientler match geldiğinde oyun ekranını gösterir. Queue'ya ilk giren solda, diğeri sağda başlar.
+8-Level hakkındaki bilgileri server clientlara gönderir ve clientlar ona göre topu mopu yerleştirir.
+9-Bundan sonrasında clientların pozisyonu saniyede ~5 kere servera yollanır ve server bunları diğer oyuncuya iletir.
+10-oyuncular her shoot arrow attıgında server request alır ve diğer clienta yollar.
+11-bir oyuncu öldüğü zaman servera dead paketi yollar.
+12-Bütün toplar bittiğinde (bunu server bildirir.) 2 si de servera paket atar.
+
 	

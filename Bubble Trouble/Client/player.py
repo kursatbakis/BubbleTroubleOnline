@@ -1,5 +1,5 @@
 from projectile import *
-
+import pygame
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y, image):
@@ -17,3 +17,10 @@ class Player(pygame.sprite.Sprite):
         if self.projectile.alive is False:
             self.projectile = Projectile(self)
             self.projectile.alive = True
+
+    def updatePlayerPosition(self):
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT] and self.x > self.speed:
+            self.x -= self.speed
+        if keys[pygame.K_RIGHT] and self.x + self.width + self.speed < 900:
+            self.x += self.speed

@@ -34,16 +34,16 @@ class Utility:
             if isCollision[0] and ball.remCollisions > 0: #collisionTime: how many remaining collisions available for this ball
                 size = ball.size
                 amplitude = ball.amplitude
-                remaningCollisions = ball.remCollisions
+                remainingCollisions = ball.remCollisions
                 self.ballPosition = (ball.x, ball.y)
 
                 self.ball_projectile_collision(isCollision[1], index, projectile1, projectile2)
-                self.init_ball(2, remaningCollisions, size, amplitude, image)
+                self.init_ball(2, remainingCollisions, size, amplitude, image)
                 self.move_ball(projectile1, projectile2)
             elif isCollision[0] and ball.remCollisions == 0:
                 self.ball_projectile_collision(isCollision[1], index, projectile1, projectile2)
 
-            ball.display(img)
+            ball.display(image)
 
         pygame.display.flip()
 
