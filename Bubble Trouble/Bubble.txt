@@ -60,19 +60,15 @@ UDP (game mechanics):
 	level (server): +
 	{
 		"bg": "xxx.jpg",
-		"time": 100,
-		"level": 4,
 		"r_lives": 5,
 		"balls": [
-			{"x": x, "y": y, "velx": velX, "velY": velY, "size": size, "clr": 0-5},
+			{"x": x, "y": y, "size": size, "color": 0-3},
 			{}
 		],
 		"noOfBalls": 10,
 		"initialX": 43.41,
 		"r_initialX": 69.31,
 		"wait": 2,
-		"minX": 30,
-		"maxX": 100 
 	}
 	
 	dead: (client) +
@@ -95,11 +91,10 @@ UDP (game mechanics):
 		"dir": l,r or n,
 	}
 
-	shoot: (client) +
+	hit: (client) +
 	{
-		"type": "shoot",
-		"gameId": 65442,
-		"id": id,
+		"type": "hit",
+		"ball": ballId,
 		"x": location,
 	}
 

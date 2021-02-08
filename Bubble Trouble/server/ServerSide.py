@@ -1,5 +1,6 @@
 import socket
 import packets
+import select
 from threading import Thread
 import json
 
@@ -11,7 +12,7 @@ matchablePlayers = set()
 usernames = {}
 ipAddresses = {}
 ports = {3440: 1, 3441: 1, 3442: 1, 3443: 1, 3444: 1, 3445: 1, 3446: 1}
-
+uniqueBallId = 1
 
 class Client:
     def __init__(self, id, ip, name):
@@ -65,28 +66,45 @@ def listenToClient(client):
                 elif content['type'] == 'enqueue':
                     print('enqueue')
                     id = content['id']
-                    matchablePlayers.add([Client(id, ipAddresses[id], usernames[id]), client])
+                    matchablePlayers.add((Client(id, ipAddresses[id], usernames[id]), client))
                 elif content['type'] == 'goodbye':
                     print('goodbye')
         except Exception as e:
-            print(e)
-            break
+            print('Error:', e)
 
 
-def notifyMatch(player1, player2):
+def notifyMatch(player1, cn1, player2, cn2):
     sendto2 = packets.matchFound(player1[0].id, player1[0].name)
     sendto1 = packets.matchFound(player2[0].id, player2[0].name)
-    sendPacket(sendto1, player1[1])
-    sendPacket(sendto2, player2[1])
+    sendPacket(sendto1, cn1)
+    sendPacket(sendto2, cn2)
 
+def listenByUdp():
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+        s.bind(('', 2182))
+        result = select.select([s], [], [])
+        while True:
+            msg = result[0][0].recv(1024)
+            data = json.loads(msg.decode('utf8'))
+            print(data)
+            if data['type'] == 'hit':
+                pass
+                #send new ball id's and removed ball id to both
+            elif data['type'] == 'update':
+                pass
+                #send this to other client
+            elif data['type'] == 'dead':
+                pass
+                #send to other client
 
 def startMatchQueue():
     while True:
         if len(matchablePlayers) >= 2:
-            player1 = matchablePlayers.pop()
-            player2 = matchablePlayers.pop()
-            notifyMatch(player1, player2)
+            player1, cn1 = matchablePlayers.pop()
+            player2, cn2 = matchablePlayers.pop()
+            notifyMatch(player1, cn1, player2, cn2)
 
 
 Thread(target=startMatchQueue, args=(), daemon=True).start()
+Thread(target=listenByUdp, args=(), daemon=True).start()
 acceptConnections()

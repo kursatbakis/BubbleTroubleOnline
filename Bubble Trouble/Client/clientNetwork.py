@@ -1,4 +1,5 @@
 import socket
+import select
 from threading import Thread
 import json
 from window import setPlayerId, matchFound, forceEnd
@@ -6,14 +7,15 @@ from window import setPlayerId, matchFound, forceEnd
 
 serverIp = '192.168.1.35'
 port = 2181
+udpSock = None
 
 
-def send_tcp_packet(packet):
-    sck = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sck.settimeout(3.0)
-    sck.connect((serverIp, port))
+def udpSocket():
+    return udpSock
+
+
+def send_tcp_packet(packet, sck):
     sck.send(packet)
-    sck.close()
 
 
 def get_ip():
@@ -28,24 +30,22 @@ def get_ip():
     return IP
 
 
-def send_udp_packet(packet):
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.bind(('', 0))
-    sock.sendto(packet, (serverIp, port))
-    sock.close()
+def send_udp_packet(packet, sck):
+    sck.sendto(packet, (serverIp, 2182))
 
 
-def send_match_request():
-    send_tcp_packet(searchForMatchPacket(id))
+def send_match_request(id, sck):
+    send_tcp_packet(searchForMatchPacket(id), sck)
 
 
-def send_connect_packet(username):
-    send_tcp_packet(connectPacket(username))
+def send_connect_packet(username, sck):
+    send_tcp_packet(connectPacket(username), sck)
+
 
 def listenByUdp():
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
-        s.bind(('', port))
-        # s.setblocking(0)
+        global udpSock
+        udpSock = s
         result = select.select([s], [], [])
         while True:
             msg = result[0][0].recv(1024)
@@ -64,18 +64,16 @@ def listenByUdp():
 
 def listenByTcp():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        s.bind(('', port))
-        s.listen()
-        conn, addr = s.accept()
+        s.connect(('', port))
+        send_connect_packet('username', s)
         while True:
-            content = conn.recv(1024).decode('utf-8')
+            content = s.recv(1024).decode('utf-8')
             if content:
                 content = json.loads(content)
                 if 'success' in content: # basari ile servera baglandik demektir.match request atilacak
-                    send_match_request(content['id'])
-                    setPlayerId(content['id'])
                     print('success packet arr')
+                    send_match_request(content['id'], s)
+                    setPlayerId(content['id'])
                 elif content['type'] == 'match': # match bulundu oyuna basla demektir
                     matchFound(content['name'], content['port'], content['withId'])
                     print('match arrives')
@@ -102,18 +100,18 @@ def goodbyePacket(id):
 
 #### WITH UDP (GAME MECHANICS) ####
 
-def coordinatesPacket(id, gameId, x, dir):
-    packet = {'id': id, 'gameId': gameId, 'x': x, 'dir': dir, type: 'update'}
+def coordinatesPacket(id, gameId, x, dir, shooting, shield):
+    packet = {'id': id, 'gameId': gameId, 'x': x, 'dir': dir, 'type': 'update', 'shooting': shooting, 'shield': shield}
     return bytes(json.dumps(packet) + '\n', 'utf8')
 
 
-def deadPacket(id):
-    packet = {'id': id, 'type': 'dead'}
+def deadPacket(id, remaining):
+    packet = {'id': id, 'type': 'dead', 'remaining': remaining}
     return bytes(json.dumps(packet) + '\n', 'utf8')
 
 
-def shootPacket(id, x):
-    packet = {'id': id, 'x': x, 'type': 'shoot'}
+def hitBallPacket(id, ballId):
+    packet = {'id': id, 'ball': ballId, 'type': 'hit'}
     return bytes(json.dumps(packet) + '\n', 'utf8')
 
 

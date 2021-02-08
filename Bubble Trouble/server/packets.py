@@ -19,56 +19,47 @@ def forceEnd(withId):
 
 
 # send before the match starts to BOTH players.
-def levelInit(level, r_lives, balls, x, rivalx, wait, minX, maxX):
+def levelInit(r_lives, balls, x, rivalx, wait=3):
 	packet = {
-		"bg": "bg" + level + ".jpg",
-		"time": 60,
+		"bg": "background.jpg",
 		"type": "levelInit",
-		"level": level,
 		"r_lives": r_lives,
 		"balls": balls,
 		"noOfBalls": len(balls),
 		"initialX": x,
 		"r_initialX": rivalx,
 		"wait": wait,
-		"minX": minX,
-		"maxX": maxX
 	}
 	return bytes(json.dumps(packet), "utf8")
 
 
 # position update every few milliseconds
-def update(x, direction):
+def update(x, direction, shooting, shield):
 	packet = {
 		"type": "s_update",
 		"x": x,
-		"dir": direction
+		"dir": direction,
+		"shooting": shooting,
+		"shield": shield
 	}
 	return bytes(json.dumps(packet), "utf8")
 
 
 # if someone shoots, send to the peer.
-def shoot(x):
+def hitBall(remove, left, right):
 	packet = {
 		"type": "s_shoot",
-		"x": x
+		"remove": remove,
+		"left": left,
+		"right": right
 	}
 	return bytes(json.dumps(packet), "utf8")
 
-
-# balls
-def balls(_balls):
-	packet = {
-		"type": "balls",
-		"balls": _balls,
-		"noOfBalls": len(_balls)
-	}
-	return bytes(json.dumps(packet), "utf8")
 
 #if someone dies, send to peer.
-def dead(livesEnded):
+def dead(remaining):
 	packet = {
 		"type": "dead",
-		"livesEnded": livesEnded
+		"remaining": remaining
 	}
 	return bytes(json.dumps(packet), "utf8")

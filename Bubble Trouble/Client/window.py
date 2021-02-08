@@ -2,7 +2,7 @@ import pygame
 import pygame_menu
 import sys
 import time
-import clientNetwork
+import clientNetwork as cn
 from player import Player
 from motor import BubbleGame
 from Utility import Utility
@@ -27,34 +27,6 @@ withId = -1
 rivalUsername = 'empty'
 port_game = 1
 isMatchFound = False
-
-
-def gameLoop():
-    global surface
-    character_x = 100
-    character_y = 560
-    while True:
-        clock.tick(40)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_SPACE]:
-            print('ff')
-        if keys[pygame.K_ESCAPE]:
-            print('esc')
-        if keys[pygame.K_LEFT]:
-            print('left')
-            character_x -= playerSpeed
-        if keys[pygame.K_RIGHT]:
-            print('right')
-            character_x += playerSpeed
-
-        surface.blit(background, (0,0))
-        surface.blit(character_img, (character_x, character_y))
-        pygame.display.update()
 
 
 def draw_window():
@@ -86,51 +58,6 @@ def setPlayerId(i):
     global playerId
     playerId = i
 
-
-def wait_for_match():
-    global surface, isMatchFound
-    Thread(target=clientNetwork.listenByTcp, daemon=True).start()
-    pleaseWaitDir = 1
-    pleaseWaitX = 10
-    pleaseWaitY = 40
-    counter = 0
-    font = pygame.font.SysFont('timesnewromanbold',35)
-    textColor1 = (255, 0, 95)
-    textColor2 = (10, 10, 10)
-    img = pygame.image.load('please_wait.jpg')
-    img = pygame.transform.scale(img, (400,300))
-    t = font.render('Please wait...', True, (30,30,25))
-    text = font.render('LOOKING FOR A MATCH!', True, textColor1)
-    clientNetwork.send_connect_packet(username)
-
-    while not isMatchFound:
-        clock.tick(32)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-
-        surface.fill((255,195,47))
-        if counter % 90 <= 45:
-            text = font.render('Looking for a match!', True, textColor1)
-        else:
-            text = font.render('Looking for a match!', True, textColor2)
-
-        if pleaseWaitDir == 1:
-            pleaseWaitX += 0.70
-        else:
-            pleaseWaitX -= 0.70
-
-        if pleaseWaitX >= 600 or pleaseWaitX <= 10:
-            pleaseWaitDir *= -1
-
-        surface.blit(text, (250, 200))
-        surface.blit(img, (200, 250))
-        surface.blit(t, (pleaseWaitX, pleaseWaitY))
-        counter += 1
-        pygame.display.update()
-
-    gameLoop()
-
 def forceEnd():
     pass
 
@@ -145,7 +72,9 @@ def setPlayerId(i):
 
 def wait_for_match():
     global surface, isMatchFound
-    Thread(target=clientNetwork.listenByTcp, daemon=True).start()
+    Thread(target=cn.listenByTcp, daemon=True).start()
+    Thread(target=cn.listenByUdp, daemon=True).start()
+
     pleaseWaitDir = 1
     pleaseWaitX = 10
     pleaseWaitY = 40
@@ -157,8 +86,6 @@ def wait_for_match():
     img = pygame.transform.scale(img, (400,300))
     t = font.render('Please wait...', True, (30,30,25))
     text = font.render('LOOKING FOR A MATCH!', True, textColor1)
-    clientNetwork.send_connect_packet(username)
-
     while not isMatchFound:
         clock.tick(32)
         for event in pygame.event.get():
@@ -183,6 +110,7 @@ def wait_for_match():
         surface.blit(img, (200, 250))
         surface.blit(t, (pleaseWaitX, pleaseWaitY))
         counter += 1
+        cn.send_udp_packet(cn.goodbyePacket(2), cn.udpSocket())
         pygame.display.update()
 
     bgame = BubbleGame(surface, window_height, window_width)
