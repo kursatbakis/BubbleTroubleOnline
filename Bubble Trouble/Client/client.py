@@ -27,18 +27,7 @@ def broadcastPacket(packet):
 	sock.close()
 
 def listen_udp():
-	with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
-		s.bind(('', port))
-		#s.setblocking(0)
-		result = select.select([s],[],[])
-		receivedPackets = queue.Queue()
-		Thread(target = receiveData, args=(result,receivedPackets), daemon = True).start()
 
-		while True:
-			while not receivedPackets.empty():
-				data = receivedPackets.get().decode('utf-8')
-				data = json.loads(data)
-				print(data['type'])
 
 my_ip = get_ip()
 username = 'tester'
