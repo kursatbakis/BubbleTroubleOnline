@@ -38,9 +38,11 @@ def levelInit(level, r_lives, balls, x, rivalx, wait, minX, maxX):
 
 
 # position update every few milliseconds
-def update(x, direction):
+
+def update(id, x, direction, shooting, shield):
 	packet = {
 		"type": "s_update",
+		"id": id,
 		"x": x,
 		"dir": direction
 	}
@@ -66,9 +68,11 @@ def balls(_balls):
 	return bytes(json.dumps(packet), "utf8")
 
 #if someone dies, send to peer.
-def dead(livesEnded):
+
+def dead(id, remaining):
 	packet = {
 		"type": "dead",
-		"livesEnded": livesEnded
+		"id": id,
+		"remaining": remaining
 	}
 	return bytes(json.dumps(packet), "utf8")

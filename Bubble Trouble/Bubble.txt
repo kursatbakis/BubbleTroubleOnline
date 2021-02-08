@@ -51,12 +51,22 @@ UDP (game mechanics):
  	coordinates: +
 	{
 		"type": "update",
-		"gameId": 65442,
 		"player": player's id,
 		"x": double,
 		"dir": "l, r veya n",
+		"shooting": ?,
+		"shield": ?
 	}
-	
+
+	UPDATE rival coordinates (server):+
+	{
+		"type": "s_update",
+		"x": double,
+		"shooting": ?,
+		"shield": ?.
+		"dir": l,r or n,
+	}
+
 	level (server): +
 	{
 		"bg": "xxx.jpg",
@@ -85,14 +95,7 @@ UDP (game mechanics):
 	dead: (server) +
 	{
 		"type": "dead",
-		"livesEnded": true|false, 
-	}
-
-	UPDATE rival coordinates (server):+
-	{
-		"type": "s_update",
-		"x": double,
-		"dir": l,r or n,
+		"remaining": true|false,
 	}
 
 	shoot: (client) +
@@ -103,12 +106,6 @@ UDP (game mechanics):
 		"x": location,
 	}
 
-	shoot: (server) +
-	{
-		"type": "s_shoot",
-		"x": location,
-	}
-	
 	balls: (server) +
 	{
 		"type": "balls",

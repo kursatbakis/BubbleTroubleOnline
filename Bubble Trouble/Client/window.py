@@ -4,7 +4,7 @@ import sys
 import time
 import clientNetwork
 from player import Player
-from Utility import Utility
+from motor import BubbleGame
 from threading import Thread
 
 pygame.init()
@@ -14,11 +14,8 @@ surface = pygame.display.set_mode((800, 600))
 username = 'default'
 playerSpeed = 2.4
 clock = pygame.time.Clock()
-player1 = Player(16, 560, 'character.png')
-player2 = Player(200,560, 'character.png')
 gameRunning = True
 ballPos = (400, 100)
-utility = Utility(ballPos, surface, (800, 600))
 background = pygame.image.load('level1.png')
 character_img = pygame.image.load('character.png')
 playerId = -1
@@ -81,6 +78,21 @@ def matchFound(name, port, w):
     withId = w
     isMatchFound = True
 
+def levelStart(rivallives, balls, noOfBalls, initialX, r_initialX, wait):
+    pass
+
+def rivalDied(remaininglives):
+    
+def setPlayerId(i):
+    global playerId
+    playerId = i
+
+def forceEnd():
+    pass
+
+def textInputDidChange(value: str) -> None:
+    global username
+    username = value
 
 def setPlayerId(i):
     global playerId

@@ -1,12 +1,13 @@
 import socket
 from threading import Thread
 import json
-from window import setPlayerId, matchFound, forceEnd
+from window import setPlayerId, matchFound, forceEnd, levelStart, rivalDied
 
 
 serverIp = '192.168.1.35'
 port = 2181
-
+udpSock = None
+playerId = None
 
 def send_tcp_packet(packet):
     sck = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -51,9 +52,19 @@ def listenByUdp():
             msg = result[0][0].recv(1024)
             data = json.loads(msg.decode('utf8'))
             if data['type'] == 'level':
-                pass
+                rivallives = data['r_lives']
+                balls = data['balls']
+                noOfBalls = data['noOfBalls']
+                initialX = data['initialX']
+                r_initialX = data['r_initialX']
+                wait = data['wait']
+                levelStart(rivallives, balls, noOfBalls, initialX, r_initialX, wait)
             elif data['type'] == 'dead':
-                pass
+                id = data['id']
+                remaining = data['remaining']
+                if id == playerId:
+                    continue
+
             elif data['type'] == 's_update':
                 pass
             elif data['type'] == 's_shoot':
@@ -63,6 +74,7 @@ def listenByUdp():
 
 
 def listenByTcp():
+    global playerId
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         s.bind(('', port))
@@ -75,7 +87,7 @@ def listenByTcp():
                 if 'success' in content: # basari ile servera baglandik demektir.match request atilacak
                     send_match_request(content['id'])
                     setPlayerId(content['id'])
-                    print('success packet arr')
+                    playerId = content['id']
                 elif content['type'] == 'match': # match bulundu oyuna basla demektir
                     matchFound(content['name'], content['port'], content['withId'])
                     print('match arrives')

@@ -73,11 +73,35 @@ def listenToClient(client):
             break
 
 
-def notifyMatch(player1, player2):
-    sendto2 = packets.matchFound(player1[0].id, player1[0].name)
-    sendto1 = packets.matchFound(player2[0].id, player2[0].name)
-    sendPacket(sendto1, player1[1])
-    sendPacket(sendto2, player2[1])
+def notifyMatch(player1, cn1, player2, cn2):
+    sendto2 = packets.matchFound(player1.id, player1.name)
+    sendto1 = packets.matchFound(player2.id, player2.name)
+    sendPacket(sendto1, cn1)
+    sendPacket(sendto2, cn2)
+
+def listenByUdp():
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        s.settimeout(0.2)
+        s.bind(('', 2182))
+        result = select.select([s], [], [])
+        while True:
+            msg = result[0][0].recv(1024)
+            data = json.loads(msg.decode('utf8'))
+            if data['type'] == 'hit':
+                s.sendto(packets.hitBall(data['ball'], uniqueBallId, uniqueBallId+1), ('<broadcast>', 2182))
+                uniqueBallId += 2
+            elif data['type'] == 'update':
+                x = data['x']
+                dir = data['dir']
+                shoot = data['shoot']
+                shield = data['shield']
+                id = data['id']
+                s.sendto(packets.update(id, x, dir, shoot, shield), ('<broadcast>', 2182))
+            elif data['type'] == 'dead':
+                id = data['id']
+                remaining = data['remaining']
+                s.sendto(packets.dead(id, remaining), ('<broadcast>', 2182))
 
 
 def startMatchQueue():
