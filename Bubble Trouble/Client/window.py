@@ -131,6 +131,8 @@ def wait_for_match():
 
     gameLoop()
 
+def forceEnd():
+    pass
 
 def textInputDidChange(value: str) -> None:
     global username

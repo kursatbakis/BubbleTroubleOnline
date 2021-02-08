@@ -102,8 +102,7 @@ UDP (game mechanics):
 		"id": id,
 		"x": location,
 	}
-	
-	
+
 	shoot: (server) +
 	{
 		"type": "s_shoot",
@@ -134,5 +133,4 @@ Senaryo:
 10-oyuncular her shoot arrow attıgında server request alır ve diğer clienta yollar.
 11-bir oyuncu öldüğü zaman servera dead paketi yollar.
 12-Bütün toplar bittiğinde (bunu server bildirir.) 2 si de servera paket atar.
-
 	
