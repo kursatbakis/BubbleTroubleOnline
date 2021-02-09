@@ -90,8 +90,9 @@ def makeBalls():
     return [ball1, ball2]
 
 def notifyMatch(player1, cn1, player2, cn2):
-    sendto2 = packets.matchFound(player1.id, player1.name,9999)
-    sendto1 = packets.matchFound(player2.id, player2.name,9999)
+
+    sendto2 = packets.matchFound(player1.id, player1.name, 9999)
+    sendto1 = packets.matchFound(player2.id, player2.name, 9999)
     sendPacket(sendto1, cn1)
     sendPacket(sendto2, cn2)
 
