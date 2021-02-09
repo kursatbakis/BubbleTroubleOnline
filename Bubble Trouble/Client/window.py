@@ -16,7 +16,8 @@ playerId = -1
 withId = -1
 rivalUsername = 'empty'
 port_game = 1
-isMatchFound = False
+match = False
+bgame = None
 
 def getPlayerID():
     return playerId
@@ -24,12 +25,9 @@ def getPlayerID():
 ################################################################################
 #                motor.py                                                      #
 ################################################################################
-#import pygame
-import time
 import json
 import random
 import math
-#from clientNetwork import coordinatesPacket, deadPacket, hitBallPacket, send_udp_packet, udpSocket
 
 class BubbleGameConstants:
     #####player var const values
@@ -99,7 +97,10 @@ class BubblePlayer:
         self.player_protection = BubbleGameConstants.player_protection_frames
         self.player_shield_blink = BubbleGameConstants.player_blink_frames
         self.player_visible = True
-    
+
+    def decrease_life(self):
+        self.player_lifes = self.player_lifes - 1
+
     def iterate_shield_params(self):
         self.player_protection = self.player_protection - 1
         if self.player_protection <= 0:
@@ -320,7 +321,10 @@ class BubbleGame:
         ball_node.insert(6, ball_step)#sinüsün neresinde olduğunu gösterir
         ball_node.insert(7, ball_id)
         self.ball_array.append(ball_node)
-    
+
+    def decrease_opponent_life(self):
+        self.player_other.decrease_life()
+
     def draw_all_balls(self):
         if self.ball_array:
             for ball_node in self.ball_array:
@@ -450,14 +454,14 @@ class BubbleGame:
                     return True
         return False
 
-    def check_and_send_coordinates():
+    def check_and_send_coordinates(self):
         self.send_coordinates = self.send_coordinates - 1
         if self.send_coordinates <= 0:
             self.player_self.send_player_coordinates()
             self.send_coordinates = BubbleGameConstants.player_update_per_frames   
     
     #FIXME response
-    def init_bubble_game(r_lives, balls, x, rivalx, wait):
+    def init_bubble_game(self, r_lives, balls, x, rivalx, wait):
         y = (self.window_height)
         self.playerID = getPlayerID()
         self.player_self = BubblePlayer(self.gameDisplay, x, y, self.playerImg_1, self.window_border_left, self.window_border_right, self.arrowImg, self.playerID)
@@ -559,24 +563,33 @@ def draw_window():
 
 
 def levelStart(rivallives, balls, noOfBalls, initialX, r_initialX, wait):
-    pass
+    bgame.init_bubble_game(rivallives, balls, initialX, r_initialX, wait)
 
 def matchFound(name, w):
     global rivalUsername, withId, match
     rivalUsername = name
     withId = w
     match = True
-    print('Match!')
+    print('Match!', match)
 
 def forceEnd():
     pass
+
+def hitball(remove, left, right):
+    bgame.find_and_split_ball(remove, left, right)
 
 def setPlayerId(i):
     global playerId
     playerId = i
 
-def rivalDied(remaining):
-    pass
+
+def rivalDied():
+    bgame.decrease_opponent_life()
+
+
+def updateplayer2(x, dir, shield, shoot):
+    bgame.update_opponent_info(x, dir, shield, shoot)
+
 
 def wait_for_match():
     Thread(target=cn.listenByTcp, daemon=True).start()
@@ -619,6 +632,7 @@ def wait_for_match():
         counter += 1
         pygame.display.update()
 
+    global bgame
     bgame = BubbleGame(surface, window_height, window_width)
     bgame.game_loop()
 

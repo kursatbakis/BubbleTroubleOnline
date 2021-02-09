@@ -2,8 +2,7 @@ import socket
 import select
 from threading import Thread
 import json
-from window import setPlayerId, matchFound, forceEnd, levelStart, rivalDied
-from motor import BubbleGame
+from window import setPlayerId, matchFound, forceEnd, levelStart, rivalDied, updateplayer2, hitball
 
 
 serverIp = '192.168.1.35'
@@ -65,7 +64,7 @@ def listenByUdp():
                     remaining = data['remaining']
                     if id == playerId:
                         continue
-                    rivalDied(remaining)
+                    rivalDied()
                 elif data['type'] == 's_update':
                     id = data['id']
                     x = data['x']
@@ -74,16 +73,12 @@ def listenByUdp():
                     shoot = data['shoot']
                     if id == playerId:
                         continue
-                    motor.BubbleGame.update_player_2_info(x, dir, shield, shoot)
+                    updateplayer2(x, dir, shield, shoot)
                 elif data['type'] == 'hitBall':
                     remove = data['remove']
                     left = data['left']
                     right = data['right']
                     hitBall(remove, left, right)
-                elif data['type'] == 'balls':
-                    balls = data['balls']
-                    noOfBalls = data['noOfBalls']
-                    setBalls(balls, noOfBalls)
             except Exception as e:
                 print('Error(udp):', e)
 

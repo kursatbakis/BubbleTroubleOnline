@@ -12,7 +12,7 @@ matchablePlayers = set()
 usernames = {}
 ipAddresses = {}
 ports = {3440: 1, 3441: 1, 3442: 1, 3443: 1, 3444: 1, 3445: 1, 3446: 1}
-uniqueBallId = 1
+uniqueBallId = 3
 
 class Client:
     def __init__(self, id, ip, name):
@@ -79,13 +79,17 @@ def makeBalls():
         'x': 100,
         'y': 200,
         'size': 5,
-        'color': 0
+        'color': 0,
+        'ballid': 1,
+        'direction': 'left'
     }
     ball2 = {
         'x': 500,
         'y': 200,
         'size': 5,
-        'color': 1
+        'color': 1,
+        'ballid': 2,
+        'direction': 'right'
     }
     return [ball1, ball2]
 
