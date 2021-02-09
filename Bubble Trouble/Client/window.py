@@ -2,10 +2,9 @@ import pygame
 import pygame_menu
 import sys
 import time
+import queue
 import clientNetwork as cn
-from player import Player
 from motor import BubbleGame
-from Utility import Utility
 from threading import Thread
 
 pygame.init()
@@ -13,68 +12,37 @@ pygame.display.set_caption('BUBBLE TROUBLE ONLINE')
 
 surface = pygame.display.set_mode((800, 600))
 username = 'default'
-playerSpeed = 2.4
 clock = pygame.time.Clock()
-player1 = Player(16, 560, 'character.png')
-player2 = Player(200,560, 'character.png')
-gameRunning = True
-ballPos = (400, 100)
-utility = Utility(ballPos, surface, (800, 600))
-background = pygame.image.load('level1.png')
-character_img = pygame.image.load('character.png')
 playerId = -1
 withId = -1
 rivalUsername = 'empty'
-port_game = 1
-isMatchFound = False
+match = False
 
+def levelStart(rivallives, balls, noOfBalls, initialX, r_initialX, wait):
+    pass
 
-def draw_window():
-    surface.blit(background, (0, 0))
-    if player1.lives > 0:
-        surface.blit(player1.projectile.image, (player1.projectile.x, player1.projectile.y))
-        surface.blit(player1.image, (player1.x, player1.y))
-    #also show player2
-    utility.move_ball(player1.projectile, player2.projectile)
-    if len(utility.balls) == 0:
-        print('no balls left.')
-
-    player1.hb = (player1.x, player1.y, 23, 37)
-    player2.hb = (player2.x, player2.y, 23, 37)
-    for ball in utility.balls:
-        ball.hb = (ball.x, ball.y, 80, 80)
-
-    pygame.display.update()
-
-
-def matchFound(name, port, w):
-    global rivalUsername, port_game, withId, isMatchFound
+def matchFound(name, w):
+    global rivalUsername, withId, match
     rivalUsername = name
-    port_game = port
     withId = w
-    isMatchFound = True
-
-def setPlayerId(i):
-    global playerId
-    playerId = i
+    match = True
+    print('Match!')
 
 def forceEnd():
     pass
 
-def textInputDidChange(value: str) -> None:
-    global username
-    username = value
-
 def setPlayerId(i):
     global playerId
     playerId = i
 
+def rivalDied(remaining):
+    pass
 
 def wait_for_match():
-    global surface, isMatchFound
     Thread(target=cn.listenByTcp, daemon=True).start()
     Thread(target=cn.listenByUdp, daemon=True).start()
 
+    global surface, match
     pleaseWaitDir = 1
     pleaseWaitX = 10
     pleaseWaitY = 40
@@ -85,8 +53,7 @@ def wait_for_match():
     img = pygame.image.load('please_wait.jpg')
     img = pygame.transform.scale(img, (400,300))
     t = font.render('Please wait...', True, (30,30,25))
-    text = font.render('LOOKING FOR A MATCH!', True, textColor1)
-    while not isMatchFound:
+    while not match:
         clock.tick(32)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -110,7 +77,6 @@ def wait_for_match():
         surface.blit(img, (200, 250))
         surface.blit(t, (pleaseWaitX, pleaseWaitY))
         counter += 1
-        cn.send_udp_packet(cn.goodbyePacket(2), cn.udpSocket())
         pygame.display.update()
 
     bgame = BubbleGame(surface, window_height, window_width)

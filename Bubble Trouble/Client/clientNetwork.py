@@ -2,7 +2,8 @@ import socket
 import select
 from threading import Thread
 import json
-from window import setPlayerId, matchFound, forceEnd
+from window import setPlayerId, matchFound, forceEnd, levelStart, rivalDied
+from motor import BubbleGame
 
 
 serverIp = '192.168.1.35'
@@ -48,38 +49,62 @@ def listenByUdp():
         udpSock = s
         result = select.select([s], [], [])
         while True:
-            msg = result[0][0].recv(1024)
-            data = json.loads(msg.decode('utf8'))
-            if data['type'] == 'level':
-                pass
-            elif data['type'] == 'dead':
-                pass
-            elif data['type'] == 's_update':
-                pass
-            elif data['type'] == 's_shoot':
-                pass
-            elif data['type'] == 'balls':
-                pass
-
+            try:
+                msg = result[0][0].recv(1024)
+                data = json.loads(msg.decode('utf8'))
+                if data['type'] == 'level':
+                    rivallives = data['r_lives']
+                    balls = data['balls']
+                    noOfBalls = data['noOfBalls']
+                    initialX = data['initialX']
+                    r_initialX = data['r_initialX']
+                    wait = data['wait']
+                    levelStart(rivallives, balls, noOfBalls, initialX, r_initialX, wait)
+                elif data['type'] == 'dead':
+                    id = data['id']
+                    remaining = data['remaining']
+                    if id == playerId:
+                        continue
+                    rivalDied(remaining)
+                elif data['type'] == 's_update':
+                    id = data['id']
+                    x = data['x']
+                    dir = data['dir']
+                    shield = data['shield']
+                    shoot = data['shoot']
+                    if id == playerId:
+                        continue
+                    motor.BubbleGame.update_player_2_info(x, dir, shield, shoot)
+                elif data['type'] == 'hitBall':
+                    remove = data['remove']
+                    left = data['left']
+                    right = data['right']
+                    hitBall(remove, left, right)
+                elif data['type'] == 'balls':
+                    balls = data['balls']
+                    noOfBalls = data['noOfBalls']
+                    setBalls(balls, noOfBalls)
+            except Exception as e:
+                print('Error(udp):', e)
 
 def listenByTcp():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect(('', port))
         send_connect_packet('username', s)
-        while True:
-            content = s.recv(1024).decode('utf-8')
-            if content:
-                content = json.loads(content)
-                if 'success' in content: # basari ile servera baglandik demektir.match request atilacak
-                    print('success packet arr')
-                    send_match_request(content['id'], s)
-                    setPlayerId(content['id'])
-                elif content['type'] == 'match': # match bulundu oyuna basla demektir
-                    matchFound(content['name'], content['port'], content['withId'])
-                    print('match arrives')
-                elif content['type'] == 'forceEnd':
-                    forceEnd()
-
+        try:
+            while True:
+                content = s.recv(1024).decode('utf-8')
+                if content:
+                    content = json.loads(content)
+                    if 'success' in content: # basari ile servera baglandik demektir.match request atilacak
+                        send_match_request(content['id'], s)
+                        setPlayerId(content['id'])
+                    elif content['type'] == 'match': # match bulundu oyuna basla demektir
+                        matchFound(content['name'], content['withId'])
+                    elif content['type'] == 'forceEnd':
+                        forceEnd()
+        except Exception as e:
+            print('Error(tcp)', e)
 
 
 ####  WITH TCP ####

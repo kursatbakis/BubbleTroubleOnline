@@ -89,6 +89,8 @@ UDP (game mechanics):
 		"type": "s_update",
 		"x": double,
 		"dir": l,r or n,
+		'shield': ?,
+		'shoot': ?.
 	}
 
 	hit: (client) +
@@ -102,16 +104,6 @@ UDP (game mechanics):
 	{
 		"type": "s_shoot",
 		"x": location,
-	}
-	
-	balls: (server) +
-	{
-		"type": "balls",
-		"balls": [
-			{"x": x, "y": y, "velx": velX, "velY": velY, "size": size, "clr": 0-5},
-			{}
-		],
-		"noOfBalls": 5,
 	}
 
 Senaryo:

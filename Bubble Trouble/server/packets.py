@@ -18,8 +18,8 @@ def forceEnd(withId):
 	return bytes(json.dumps(packet), "utf8")
 
 
-# send before the match starts to BOTH players.
-def levelInit(r_lives, balls, x, rivalx, wait=3):
+# send before the match starts to BOTH players. OK
+def levelInit(r_lives, balls, x, rivalx, wait):
 	packet = {
 		"bg": "background.jpg",
 		"type": "levelInit",
